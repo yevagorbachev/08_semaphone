@@ -18,3 +18,4 @@ write.o: write.c write.h control.h
 
 clean:
 	rm *.o
+	rm story.txt
