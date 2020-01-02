@@ -51,6 +51,46 @@ int story_view() {
     }
 }
 
+int story_remove() {
+    // behavior: waits for access, prints contents
+    // removes all if and only if semaphore, shared memory segment, and file are accessible
+
+    // get semaphore info
+    int semd = semget(SEMKEY, 1, 0);
+    if (semd == -1) {
+        printf("Error accessing semaphore: %s\n", strerror(errno));
+        return -1;
+    } else {
+        // waits for availability
+        printf("trying to get in...\n");
+        sem_buffer.sem_num = 0;
+        sem_buffer.sem_flg = SEM_UNDO;
+        sem_buffer.sem_op = -1;
+        semop(semd, &sem_buffer, 1);
+    }
+    story_view();
+
+    // get shared memory and file info
+    int shmd = shmget(MEMKEY, SIZE, 0);
+    if (shmd == -1) {
+        printf("Error accessing shared memory: %s\n", strerror(errno));
+        return -1;
+    }
+    int story_filedes = open(story, O_RDONLY);
+    if (story_filedes == -1) {
+        printf("Error accessing story file: %s\n", strerror(errno));
+        return -1;
+    }
+
+    // removal of all
+    shmctl(shmd, IPC_RMID, 0);
+    printf("Shared memory segment removed\n");
+    semctl(semd, IPC_RMID, 0);
+    printf("Semaphore removed\n");
+    remove(story);
+    printf("Story file removed\n");
+}
+
 int main(int argc, char * argv[]) {
     if (argc < 2) {
         printf("Usage: ./control [-crv]\n");

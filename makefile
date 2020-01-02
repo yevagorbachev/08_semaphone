@@ -4,19 +4,17 @@ else
 	CC = gcc
 endif
 
-objects = main.o
+objects = control.o write.o
 
 all: $(objects)
-	$(CC) -o program $(objects)
+	$(CC) -o control control.o
+	$(CC) -o write write.o
 
-main.o: main.c
-	$(CC) -c main.c
+control.o: control.c control.h
+	$(CC) -c control.c
 
-leak:
-	valgrind --leak-check=yes ./program
-
-run:
-	./program
+write.o: write.c write.h control.h
+	$(CC) -c write.c
 
 clean:
 	rm *.o
