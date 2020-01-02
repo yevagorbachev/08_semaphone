@@ -23,7 +23,7 @@ int story_create() {
         printf("Shared memory created successfully\n");
     }
     // story file creation
-    int story_filedes = open("story.txt", O_CREAT | O_TRUNC | O_RDWR, 0644);
+    int story_filedes = open(story, O_CREAT | O_TRUNC | O_RDWR, 0644);
     if (story_filedes == -1) {
         printf("Error creating story file: %s\n", strerror(errno));
         return -1;
@@ -33,6 +33,22 @@ int story_create() {
     }
 
     return 0;
+}
+
+int story_view() {
+    FILE * storyfile = fopen(story, "r");
+    if (storyfile == NULL) {
+        printf("Error opening story file (\"%s\"): %s\n", story, strerror(errno));
+        return -1;
+    } else {
+        printf("The story so far:\n");
+        char c;
+        while ((c = fgetc(storyfile)) != EOF) {
+            fputc(c, stdin);
+        }
+        fclose(storyfile);
+        return 0;
+    }
 }
 
 int main(int argc, char * argv[]) {

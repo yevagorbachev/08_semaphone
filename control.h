@@ -15,7 +15,7 @@
 #define SIZE 1024
 
 int CREAT_BASE = IPC_CREAT | IPC_EXCL | 0644;
-
+char * story = "story.txt";
 union semun {
 	int val;		// Value for SETVAL
 	struct semid_ds *buf;		//Buffer for IPC_STAT, IPC_SET
