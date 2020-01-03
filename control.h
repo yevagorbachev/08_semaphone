@@ -12,7 +12,7 @@
 
 #define SEMKEY 6674 //Gravitational constant
 #define SHMKEY 6626 //Planck constant
-#define SIZE 2
+#define SIZE 4
 
 char * story = "story.txt";
 

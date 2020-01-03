@@ -8,7 +8,7 @@ int story_create() {
     int semd = semget(SEMKEY, 1, IPC_CREAT | IPC_EXCL | 0777);
     if (semd == -1) {
         printf("Error creating semaphore: %s\n", strerror(errno));
-        return -1;
+        
     }
     union_sem.val = 1;
     semctl(semd, 0, SETVAL, union_sem);
@@ -18,7 +18,7 @@ int story_create() {
     int shmd = shmget(SHMKEY, SIZE, IPC_CREAT | 0777);
     if (shmd == -1) {
         printf("Error creating shared memory: %s\n", strerror(errno));
-        return -1;
+        
     }
     printf("Shared memory created successfully\n");
 
@@ -26,7 +26,7 @@ int story_create() {
     int story_filedes = open(story, O_CREAT | O_TRUNC | O_RDWR, 0777);
     if (story_filedes == -1) {
         printf("Error creating story file: %s\n", strerror(errno));
-        return -1;
+        
     }
     printf("Story file created successfully\n");
     close(story_filedes);
@@ -38,7 +38,7 @@ int story_view() {
     FILE * storyfile = fopen(story, "r");
     if (storyfile == NULL) {
         printf("Error opening story file (\"%s\"): %s\n", story, strerror(errno));
-        return -1;
+        
     }
     printf("The story so far:\n");
     char c;
@@ -58,10 +58,10 @@ int story_remove() {
     int semd = semget(SEMKEY, 1, 0);
     if (semd == -1) {
         printf("Error accessing semaphore: %s\n", strerror(errno));
-        return -1;
+        
     }
     // waits for availability
-    printf("trying to get in\n");
+    printf("awaiting access\n");
     sem_buffer.sem_num = 0;
     sem_buffer.sem_flg = SEM_UNDO;
     sem_buffer.sem_op = -1;
@@ -71,12 +71,12 @@ int story_remove() {
     int shmd = shmget(SHMKEY, SIZE, 0);
     if (shmd == -1) {
         printf("Error accessing shared memory: %s\n", strerror(errno));
-        return -1;
+        
     }
     int story_filedes = open(story, O_RDONLY);
     if (story_filedes == -1) {
         printf("Error accessing story file: %s\n", strerror(errno));
-        return -1;
+        
     }
 
     // removal of all

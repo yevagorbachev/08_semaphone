@@ -6,26 +6,43 @@ int story_write() {
     int semd = semget(SEMKEY, 1, 0);
     if (semd == -1) {
         printf("Error accessing semaphore: %s\n", strerror(errno));
-        return -1;
     }
-    printf("trying to get in\n");
+    printf("\nawaiting access\n");
+    sem_buffer.sem_op = -1;
     semop(semd, &sem_buffer, 1);
 
     // get line size
     int shmd = shmget(SHMKEY, SIZE, 0);
     if (shmd == -1) {
         printf("Error accessing shared memory: %s\n", strerror(errno));
-        return -1;
     }
-    short * size_ptr = shmat(shmd, 0, 0);
-    short size = *size_ptr;
+    int * size_ptr = shmat(shmd, 0, 0);
+    int size = *size_ptr;
+
     // read from file
-    int story_filedes = open(story, O_RDWR | O_APPEND);
-    if (shmd == -1) {
+    int story_filedes = open(story, O_RDONLY);
+    if (story_filedes == -1) {
         printf("Error opening story file: %s\n", strerror(errno));
-        return -1;
     }
 
+    char * linebuffer = calloc(size, 1);
+    printf("Last line of story:\n");
+    lseek(story_filedes, -1 * size, SEEK_END);
+    read(story_filedes, linebuffer, size);
+    printf("%s", linebuffer);
+    close(story_filedes);
+    char inbuffer[1024];
+    printf("Enter next line:\n");
+    fgets(inbuffer, 1024, stdin);
+    story_filedes = open(story, O_WRONLY | O_APPEND);
+    if (story_filedes == -1) {
+        printf("Error opening story file: %s\n", strerror(errno));
+    }
+    *size_ptr = strlen(inbuffer);
+    write(story_filedes, inbuffer, *size_ptr);
+
+    //free, detach, close file, release semaphore
+    free(linebuffer);
     shmdt(size_ptr);
     close(story_filedes);
     sem_buffer.sem_op = 1;
@@ -33,5 +50,5 @@ int story_write() {
 }
 
 int main() {
-    
+    story_write();
 }
